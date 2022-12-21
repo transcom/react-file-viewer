@@ -10,7 +10,9 @@ const UnsupportedViewer = (props) => (
         <props.unsupportedComponent {...props} />
       ) : (
         <p>
-          {`No preview available for this kind of file.\nDownload file to see the contents.`}
+          No preview available for this kind of file.
+          <br />
+          Download file to see the contents.
         </p>
       )}
     </div>

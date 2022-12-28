@@ -121,7 +121,8 @@ If you are working on a feature branch and need to see changes introduced in tha
 1. Run `yarn build` in this react-file-viewer repo
 2. In the secondary repo, update `package.json` to point the trussworks/react-file-viewer declaration to your branch in the react-file-viewer repo:
 
-```"@trussworks/react-file-viewer": "git+https://github.com/trussworks react-file-viewer#your-branch-name"
+```
+"@trussworks/react-file-viewer": "git+https://github.com/trussworks react-file-viewer#your-branch-name"
 ```
 
 3. In the secondary repo, reinstall frontend packages and then run the client.

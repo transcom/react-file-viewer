@@ -114,6 +114,23 @@ case 'rtf':
   return RtfViewer;
 ```
 
+### Viewing local changes in a secondary repo
+
+If you are working on a feature branch and need to see changes introduced in that branch in another repo that using this library, here are the steps:
+
+1. Run `yarn build` in this react-file-viewer repo
+2. In the secondary repo, update `package.json` to point the trussworks/react-file-viewer declaration to your branch in the react-file-viewer repo:
+
+```
+"@trussworks/react-file-viewer": "git+https://github.com/trussworks react-file-viewer#your-branch-name"
+```
+
+3. In the secondary repo, reinstall frontend packages and then run the client.
+
+4. When your react-file-viewer branch is merged into main, update the `package.json` in the secondary repo to declare the react-file-viewer libary normally
+
+`"@trussworks/react-file-viewer": "git+https://github.com/trussworks react-file-viewer"`
+
 ## Roadmap
 
 - [ ] Remove ignored linting rules and fix them

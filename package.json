@@ -78,12 +78,12 @@
     "style-loader": "^1.2.1",
     "url-loader": "^4.1.0",
     "webpack": "^5.75.0",
-    "webpack-bundle-analyzer": "^3.8.0",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "pdfjs-dist": "1.8.357",
+    "pdfjs-dist": "^4.2.67",
     "prop-types": "^15.5.10",
     "react-visibility-sensor": "^5.0.2",
     "three": "0.137.0"

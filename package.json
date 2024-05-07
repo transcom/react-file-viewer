@@ -1,12 +1,12 @@
 {
-  "name": "@trussworks/react-file-viewer",
+  "name": "@transcom/react-file-viewer",
   "version": "1.2.1",
   "description": "Extendable file viewer for web",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trussworks/react-file-viewer.git"
+    "url": "git+https://github.com/transcom/react-file-viewer.git"
   },
   "scripts": {
     "dev": "webpack -d --watch",

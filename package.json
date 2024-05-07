@@ -45,12 +45,12 @@
     "@babel/plugin-transform-modules-commonjs": "^7.10.1",
     "@babel/preset-env": "^7.10.3",
     "@babel/preset-react": "^7.0.0",
-    "autoprefixer": "^9.8.4",
+    "autoprefixer": "^10.4.19",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.3",
     "babel-loader": "^8.0.0",
     "chalk": "^4.1.0",
-    "css-loader": "^3.6.0",
+    "css-loader": "^7.1.1",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-wait": "^1.0.9",
@@ -80,7 +80,7 @@
     "webpack": "^5.75.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
     "pdfjs-dist": "^4.2.67",

@@ -78,7 +78,7 @@
     "url-loader": "^4.1.0",
     "webpack": "^5.75.0",
     "webpack-bundle-analyzer": "^4.10.2",
-    "webpack-cli": "^3.3.12",
+    "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {

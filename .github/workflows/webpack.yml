@@ -23,8 +23,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
 
     - name: Build
-      env:
-        NODE_OPTIONS: --openssl-legacy-provider
       run: |
+        if [ "${{ matrix.node-version }}" == "18.x" ]; then
+          export NODE_OPTIONS=--openssl-legacy-provider
+        fi
         npm install
         npx webpack

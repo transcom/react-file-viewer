@@ -23,7 +23,7 @@ const config = {
     modules: [path.resolve(__dirname, './src'), 'node_modules'],
     extensions: ['.js', '.jsx', '.json'],
   },
-  plugins: [new BundleAnalyzerPlugin()],
+  plugins: [new BundleAnalyzerPlugin({analyzerMode: static})],
   externals: [
     {
       react: {

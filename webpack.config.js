@@ -11,6 +11,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 
 const config = {
   entry: `${APP_DIR}/components`,
+  mode: 'production',
   output: {
     path: BUILD_DIR,
     filename: 'index.js',

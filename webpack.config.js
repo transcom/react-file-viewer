@@ -2,6 +2,7 @@
 // Modified work Copyright 2020, Trussworks, Inc.
 
 const path = require('path')
+const { experiments } = require('webpack')
 
 const BUILD_DIR = path.resolve(__dirname, './dist')
 const APP_DIR = path.resolve(__dirname, './src')
@@ -83,6 +84,9 @@ const config = {
         },
       },
     ],
+  },
+  experiments: {
+    topLevelAwait: true,
   },
 }
 

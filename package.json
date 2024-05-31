@@ -1,16 +1,16 @@
 {
-  "name": "@trussworks/react-file-viewer",
+  "name": "@transcom/react-file-viewer",
   "version": "1.2.2",
   "description": "Extendable file viewer for web",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/trussworks/react-file-viewer.git"
+    "url": "git+https://github.com/transcom/react-file-viewer.git"
   },
   "scripts": {
     "dev": "webpack -d --watch",
-    "build": "webpack -p --progress",
+    "build": "webpack --mode production --progress",
     "start": "node ./scripts/start.js",
     "lint": "eslint --ext js,jsx src",
     "test": "jest --env=jsdom ",
@@ -45,12 +45,12 @@
     "@babel/plugin-transform-modules-commonjs": "^7.10.1",
     "@babel/preset-env": "^7.10.3",
     "@babel/preset-react": "^7.0.0",
-    "autoprefixer": "^9.8.4",
+    "autoprefixer": "^10.4.19",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.0.3",
     "babel-loader": "^8.0.0",
     "chalk": "^4.1.0",
-    "css-loader": "^3.6.0",
+    "css-loader": "^7.1.1",
     "enzyme": "^3.8.0",
     "enzyme-adapter-react-16": "^1.7.1",
     "enzyme-wait": "^1.0.9",
@@ -68,7 +68,6 @@
     "inquirer": "^7.2.0",
     "jest": "^26.1.0",
     "lint-staged": "^10.2.11",
-    "node-sass": "^8.0.0",
     "postcss-loader": "^4.2.0",
     "prettier": "^2.0.5",
     "react": "^16.6.3",
@@ -78,14 +77,15 @@
     "style-loader": "^1.2.1",
     "url-loader": "^4.1.0",
     "webpack": "^5.75.0",
-    "webpack-bundle-analyzer": "^3.8.0",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-bundle-analyzer": "^4.10.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
   },
   "dependencies": {
-    "pdfjs-dist": "1.8.357",
+    "pdfjs-dist": "^4.2.67",
     "prop-types": "^15.5.10",
     "react-visibility-sensor": "^5.0.2",
+    "sass": "^1.77.2",
     "three": "0.137.0"
   },
   "resolutions": {

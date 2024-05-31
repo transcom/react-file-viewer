@@ -2,12 +2,11 @@
 
 import React from 'react'
 import VisibilitySensor from 'react-visibility-sensor'
-import { PDFJS } from 'pdfjs-dist/build/pdf.combined'
-import 'pdfjs-dist/web/compatibility'
+import * as PDFJS from 'pdfjs-dist'
 
-PDFJS.disableWorker = true
 const INCREASE_PERCENTAGE = 0.2
 const DEFAULT_SCALE = 1.1
+// eslint-disable-next-line no-import-assign
 PDFJS.isEvalSupported = false // DO NOT REMOVE THIS LINE OR ADJUST THE BOOLEAN VALUE ELSEWHERE IN THE CODE. This is a temporary workaround for https://github.com/transcom/mymove/security/dependabot/146
 
 export class PDFPage extends React.Component {

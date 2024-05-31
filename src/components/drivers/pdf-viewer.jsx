@@ -2,12 +2,14 @@
 
 import React from 'react'
 import VisibilitySensor from 'react-visibility-sensor'
-import * as PDFJS from 'pdfjs-dist'
+import { PDFJS } from 'pdfjs-dist/build/pdf.combined'
+import 'pdfjs-dist/web/compatibility'
 
 const INCREASE_PERCENTAGE = 0.2
 const DEFAULT_SCALE = 1.1
 // eslint-disable-next-line no-import-assign
 PDFJS.isEvalSupported = false // DO NOT REMOVE THIS LINE OR ADJUST THE BOOLEAN VALUE ELSEWHERE IN THE CODE. This is a temporary workaround for https://github.com/transcom/mymove/security/dependabot/146
+PDFJS.disableWorker = true
 
 export class PDFPage extends React.Component {
   constructor(props) {
@@ -181,19 +183,22 @@ export default class PDFDriver extends React.Component {
             <button
               type="button"
               className="view-control"
-              onClick={this.increaseZoom}>
+              onClick={this.increaseZoom}
+            >
               <i className="zoom-in" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.resetZoom}>
+              onClick={this.resetZoom}
+            >
               <i className="zoom-reset" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.reduceZoom}>
+              onClick={this.reduceZoom}
+            >
               <i className="zoom-out" />
             </button>
           </div>

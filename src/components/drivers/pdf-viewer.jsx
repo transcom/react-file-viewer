@@ -107,7 +107,7 @@ export default class PDFDriver extends React.Component {
   }
 
   componentDidMount() {
-    // Only utilized PDFJS.getDocument() if isEvalSupported == false.
+    // Only utilize PDFJS.getDocument() if isEvalSupported == false.
     if (PDFJS.isEvalSupported == false) {
       const { filePath } = this.props
       const containerWidth = this.container.offsetWidth

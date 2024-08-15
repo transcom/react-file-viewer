@@ -123,6 +123,17 @@ export default class PDFDriver extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    // Only utilize PDFJS.getDocument() if isEvalSupported == false.
+    if (PDFJS.isEvalSupported == false) {
+      const { pdf } = this.state
+      if (pdf) {
+        pdf.destroy()
+        this.setState({ pdf: null })
+      }
+    }
+  }
+
   setZoom(zoom) {
     this.setState({
       zoom,

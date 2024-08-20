@@ -54,8 +54,7 @@ export default class PhotoViewer extends Component {
 
   componentDidMount() {
     const { originalWidth, originalHeight } = this.props
-    const imageDimensions = this.getImageDimensions.call(
-      this,
+    const imageDimensions = this.getImageDimensions(
       originalWidth,
       originalHeight
     )

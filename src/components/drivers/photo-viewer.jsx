@@ -123,14 +123,17 @@ export default class PhotoViewer extends Component {
       <div
         className="photo-viewer-container"
         style={containerStyles}
-        id="pg-photo-container">
+        id="pg-photo-container"
+      >
         <div
           className="photo-viewer-scale-container"
           id="photo-viewer-scale-container"
-          style={scaleContainerStyle}>
+          style={scaleContainerStyle}
+        >
           <div
             className="photo-viewer-image-container"
-            id="photo-viewer-image-container">
+            id="photo-viewer-image-container"
+          >
             &nbsp;
           </div>
         </div>
@@ -146,25 +149,29 @@ export default class PhotoViewer extends Component {
             <button
               type="button"
               className="view-control"
-              onClick={this.increaseZoom}>
+              onClick={this.increaseZoom}
+            >
               <i className="zoom-in" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.reduceZoom}>
+              onClick={this.reduceZoom}
+            >
               <i className="zoom-out" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.rotateLeft}>
+              onClick={this.rotateLeft}
+            >
               <i className="rotate-left" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.rotateRight}>
+              onClick={this.rotateRight}
+            >
               <i className="rotate-right" />
             </button>
           </div>

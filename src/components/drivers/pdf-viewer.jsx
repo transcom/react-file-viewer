@@ -194,22 +194,19 @@ export default class PDFDriver extends React.Component {
             <button
               type="button"
               className="view-control"
-              onClick={this.increaseZoom}
-            >
+              onClick={this.increaseZoom}>
               <i className="zoom-in" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.resetZoom}
-            >
+              onClick={this.resetZoom}>
               <i className="zoom-reset" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.reduceZoom}
-            >
+              onClick={this.reduceZoom}>
               <i className="zoom-out" />
             </button>
           </div>

@@ -5,9 +5,11 @@ import VisibilitySensor from 'react-visibility-sensor'
 import { PDFJS } from 'pdfjs-dist/build/pdf.combined'
 import 'pdfjs-dist/web/compatibility'
 
-PDFJS.disableWorker = true
 const INCREASE_PERCENTAGE = 0.2
 const DEFAULT_SCALE = 1.1
+// eslint-disable-next-line no-import-assign
+PDFJS.isEvalSupported = false // DO NOT REMOVE THIS LINE OR ADJUST THE BOOLEAN VALUE ELSEWHERE IN THE CODE. This is a temporary workaround for https://github.com/transcom/mymove/security/dependabot/146
+PDFJS.disableWorker = true
 
 export class PDFPage extends React.Component {
   constructor(props) {
@@ -105,17 +107,31 @@ export default class PDFDriver extends React.Component {
   }
 
   componentDidMount() {
-    const { filePath } = this.props
-    const containerWidth = this.container.offsetWidth
+    // Only utilize PDFJS.getDocument() if isEvalSupported == false.
+    if (PDFJS.isEvalSupported == false) {
+      const { filePath } = this.props
+      const containerWidth = this.container.offsetWidth
 
-    const loadingTask = PDFJS.getDocument(filePath)
-    loadingTask.onProgress = (progressData) => {
-      this.progressCallback(progressData)
+      const loadingTask = PDFJS.getDocument(filePath)
+      loadingTask.onProgress = (progressData) => {
+        this.progressCallback(progressData)
+      }
+
+      loadingTask.then((pdf) => {
+        this.setState({ pdf, containerWidth })
+      })
     }
+  }
 
-    loadingTask.then((pdf) => {
-      this.setState({ pdf, containerWidth })
-    })
+  componentWillUnmount() {
+    // Only utilize PDFJS.getDocument() if isEvalSupported == false.
+    if (PDFJS.isEvalSupported === false) {
+      const { pdf } = this.state
+      if (pdf) {
+        pdf.destroy()
+        this.setState({ pdf: null })
+      }
+    }
   }
 
   setZoom(zoom) {

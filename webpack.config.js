@@ -2,6 +2,7 @@
 // Modified work Copyright 2020, Trussworks, Inc.
 
 const path = require('path')
+const { experiments } = require('webpack')
 
 const BUILD_DIR = path.resolve(__dirname, './dist')
 const APP_DIR = path.resolve(__dirname, './src')
@@ -11,6 +12,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 
 const config = {
   entry: `${APP_DIR}/components`,
+  mode: 'production',
   output: {
     path: BUILD_DIR,
     filename: 'index.js',
@@ -22,7 +24,7 @@ const config = {
     modules: [path.resolve(__dirname, './src'), 'node_modules'],
     extensions: ['.js', '.jsx', '.json'],
   },
-  plugins: [new BundleAnalyzerPlugin()],
+  plugins: [new BundleAnalyzerPlugin({analyzerMode: 'disabled'})],
   externals: [
     {
       react: {
@@ -83,6 +85,9 @@ const config = {
         },
       },
     ],
+  },
+  experiments: {
+    topLevelAwait: true,
   },
 }
 

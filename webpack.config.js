@@ -16,6 +16,7 @@ const config = {
     filename: 'index.js',
     library: ['FileViewer'],
     libraryTarget: 'umd',
+    publicPath: '/',
   },
   resolve: {
     modules: [path.resolve(__dirname, './src'), 'node_modules'],

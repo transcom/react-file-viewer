@@ -1,6 +1,6 @@
 {
-  "name": "@trussworks/react-file-viewer",
-  "version": "1.2.1",
+  "name": "@transcom/react-file-viewer",
+  "version": "1.2.4",
   "description": "Extendable file viewer for web",
   "main": "dist/index.js",
   "module": "dist/index.js",

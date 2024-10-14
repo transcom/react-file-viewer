@@ -9,6 +9,7 @@
     "url": "git+https://github.com/transcom/react-file-viewer.git"
   },
   "scripts": {
+    "serve": "webpack serve --port 8081",
     "serve:dev": "webpack serve --config webpack.config.dev.js --port 8081",
     "build": "webpack --mode production --progress",
     "build:dev": "webpack --config webpack.config.dev.js --mode development --progress",

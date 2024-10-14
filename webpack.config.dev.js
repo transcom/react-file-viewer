@@ -14,11 +14,6 @@ module.exports = {
   stats: {
     all: true,
   },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, 'public'),
-    },
-  },
   entry: {
     app: [
       'webpack-dev-server/client?http://localhost:8081/',

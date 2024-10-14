@@ -54,6 +54,7 @@
     "@babel/preset-env": "^7.10.3",
     "@babel/preset-react": "^7.0.0",
     "@playwright/test": "^1.48.0",
+    "@types/three": "^0.169.0",
     "autoprefixer": "^10.4.19",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^29.7.0",

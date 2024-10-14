@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 
-import * as THREE from 'three';
+import * as ThreeLib from 'three';
 import PhotoViewer from './photo-viewer';
 import Photo360Viewer from './photo360-viewer';
 import Loading from '../loading';
@@ -27,7 +27,7 @@ export default class PhotoViewerWrapper extends Component {
 
   componentDidMount() {
     // spike on using promises and a different loader or adding three js loading manager
-    const loader = new THREE.TextureLoader();
+    const loader = new ThreeLib.TextureLoader();
     loader.crossOrigin = '';
     // load a resource
     loader.load(

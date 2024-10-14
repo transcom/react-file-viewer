@@ -38,6 +38,7 @@ describe('pdf-viewer', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  // TODO: Replace with playwright. Jest cannot handle this test after the PDFJS-DIST upgrade to ESM
   it('updates loading progress state', async () => {
     const fileContents = readFileSync('./example_files/sample.pdf');
     const wrapper = mount(

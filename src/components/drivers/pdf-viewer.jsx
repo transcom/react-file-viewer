@@ -2,14 +2,9 @@
 
 import React from 'react'
 import VisibilitySensor from 'react-visibility-sensor'
-import { PDFJS } from 'pdfjs-dist/build/pdf.combined'
-import 'pdfjs-dist/web/compatibility'
 
 const INCREASE_PERCENTAGE = 0.2
 const DEFAULT_SCALE = 1.1
-// eslint-disable-next-line no-import-assign
-PDFJS.isEvalSupported = false // DO NOT REMOVE THIS LINE OR ADJUST THE BOOLEAN VALUE ELSEWHERE IN THE CODE. This is a temporary workaround for https://github.com/transcom/mymove/security/dependabot/146
-PDFJS.disableWorker = true
 
 export class PDFPage extends React.Component {
   constructor(props) {
@@ -45,26 +40,36 @@ export class PDFPage extends React.Component {
 
   fetchAndRenderPage() {
     const { pdf, index } = this.props
-    pdf.getPage(index).then(this.renderPage.bind(this))
+    pdf
+      .getPage(index)
+      .then(this.renderPage.bind(this))
+      .catch((error) => {
+        console.error(`Error fetching page ${index}:`, error)
+      })
   }
 
   renderPage(page) {
-    const { containerWidth, zoom } = this.props
-    const calculatedScale =
-      containerWidth / page.getViewport(DEFAULT_SCALE).width
-    const scale =
-      calculatedScale > DEFAULT_SCALE ? DEFAULT_SCALE : calculatedScale
-    const viewport = page.getViewport(scale + zoom)
-    const { width, height } = viewport
+    try {
+      const { containerWidth, zoom } = this.props
+      const initialViewport = page.getViewport({ scale: DEFAULT_SCALE });
+      const calculatedScale =
+        containerWidth / initialViewport.width
+      const scale =
+        (calculatedScale > DEFAULT_SCALE ? DEFAULT_SCALE : calculatedScale) + zoom * INCREASE_PERCENTAGE
+      const viewport = page.getViewport({scale})
+      const { width, height } = viewport
 
-    const context = this.canvas.getContext('2d')
-    this.canvas.width = width
-    this.canvas.height = height
+      const context = this.canvas.getContext('2d')
+      this.canvas.width = width
+      this.canvas.height = height
 
-    page.render({
-      canvasContext: context,
-      viewport,
-    })
+      page.render({
+        canvasContext: context,
+        viewport,
+      })
+    } catch (error) {
+      console.error(`Error rendering page ${this.props.index}:`, error)
+    }
   }
 
   render() {
@@ -107,30 +112,32 @@ export default class PDFDriver extends React.Component {
   }
 
   componentDidMount() {
-    // Only utilize PDFJS.getDocument() if isEvalSupported == false.
-    if (PDFJS.isEvalSupported == false) {
+    // Dynamic import of ESM into CJS
+    ;(async () => {
+      // sidestep that pdfjs is bundled as esm
+      const pdfjs = await import('pdfjs-dist/webpack')
       const { filePath } = this.props
       const containerWidth = this.container.offsetWidth
-
-      const loadingTask = PDFJS.getDocument(filePath)
+      const loadingTask = pdfjs.getDocument(filePath)
       loadingTask.onProgress = (progressData) => {
         this.progressCallback(progressData)
       }
 
-      loadingTask.then((pdf) => {
-        this.setState({ pdf, containerWidth })
-      })
-    }
+      loadingTask.promise
+        .then((pdf) => {
+          this.setState({ pdf, containerWidth })
+        })
+        .catch((error) => {
+          console.error('Error loading PDF:', error)
+        })
+    })()
   }
 
   componentWillUnmount() {
-    // Only utilize PDFJS.getDocument() if isEvalSupported == false.
-    if (PDFJS.isEvalSupported === false) {
-      const { pdf } = this.state
-      if (pdf) {
-        pdf.destroy()
-        this.setState({ pdf: null })
-      }
+    const { pdf } = this.state
+    if (pdf) {
+      pdf.destroy()
+      this.setState({ pdf: null })
     }
   }
 
@@ -160,9 +167,9 @@ export default class PDFDriver extends React.Component {
 
   renderPages() {
     const { pdf, containerWidth, zoom } = this.state
-    if (!pdf) return null
-    const pages = Array.apply(null, { length: pdf.numPages })
-    return pages.map((v, i) => (
+    if (!pdf) return null;
+    const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
+    return pages.map((_, i) => (
       <PDFPage
         index={i + 1}
         key={`pdfPage_${i}`}

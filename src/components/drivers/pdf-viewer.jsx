@@ -117,9 +117,18 @@ export default class PDFDriver extends React.Component {
         this.progressCallback(progressData)
       }
 
-      loadingTask.then((pdf) => {
-        this.setState({ pdf, containerWidth })
-      })
+      loadingTask
+        .then((pdf) => {
+          this.setState({ pdf, containerWidth })
+        })
+        .catch((error) => {
+          if (
+            typeof this.props.onError != undefined &&
+            this.props.onError != null
+          ) {
+            this.props.onError(error)
+          }
+        })
     }
   }
 
@@ -194,19 +203,22 @@ export default class PDFDriver extends React.Component {
             <button
               type="button"
               className="view-control"
-              onClick={this.increaseZoom}>
+              onClick={this.increaseZoom}
+            >
               <i className="zoom-in" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.resetZoom}>
+              onClick={this.resetZoom}
+            >
               <i className="zoom-reset" />
             </button>
             <button
               type="button"
               className="view-control"
-              onClick={this.reduceZoom}>
+              onClick={this.reduceZoom}
+            >
               <i className="zoom-out" />
             </button>
           </div>

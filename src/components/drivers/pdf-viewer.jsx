@@ -127,6 +127,8 @@ export default class PDFDriver extends React.Component {
             this.props.onError != null
           ) {
             this.props.onError(error)
+          } else {
+            throw error
           }
         })
     }

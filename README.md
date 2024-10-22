@@ -72,11 +72,11 @@ purposes. It is by default served via webpack-dev-server.
 
 ### To start demo app
 
-`yarn start` will start the demo app served by webpack-dev-server
+`yarn serve:dev` will start the webpack analyzer and serve `app.js` for debugging and playwright.
 
 ### Testing
 
-Tests use Jest and Enzyme.
+Tests use Jest, Enzyme, and Playwright.
 
 Run tests with:
 
@@ -94,6 +94,13 @@ To do this run:
 ```
 yarn jest --updateSnapshot
 ```
+
+```
+yarn test:e2e
+```
+
+This runs the playwright tests for the drivers. As certain drivers now rely on modern web API, playwright must be used to
+simulate a real browser environment as this is still experimental within Jest's JSDOM.
 
 ### To run the linter
 

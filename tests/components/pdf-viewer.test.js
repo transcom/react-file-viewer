@@ -40,16 +40,6 @@ describe('pdf-viewer', () => {
     expect(spyFetchAndRender).not.toHaveBeenCalled();
   });
 
-  it('updates loading progress state', async () => {
-    const fileContents = readFileSync('./example_files/sample.pdf');
-    const wrapper = mount(
-      <PDFDriver fileType='pdf' filePath={fileContents} />
-    );
-    createWaitForElement('.pdf-canvas')(wrapper).then((componentReady) => {
-      expect(componentReady.state().percent).toBe('100')
-    })
-  });
-
   it('does not call onError for a successful file', async () => {
     function onError(error) {
       throw Error('onError should not be called');

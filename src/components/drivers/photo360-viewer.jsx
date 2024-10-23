@@ -97,11 +97,11 @@ class Photo360Viewer extends Component {
     // moving the camera according to current latitude (vertical movement)
     // and longitude (horizontal movement)
     this.camera.target.x =
-      500 *
-      Math.sin(ThreeLib.MathUtils.degToRad(90 - latitude))
-      Math.cos(ThreeLib.MathUtils.degToRad(this.state.longitude))
+      500 * Math.sin(ThreeLib.MathUtils.degToRad(90 - latitude))
+    Math.cos(ThreeLib.MathUtils.degToRad(this.state.longitude))
 
-    this.camera.target.y = 500 * Math.cos(ThreeLib.MathUtils.degToRad(90 - latitude))
+    this.camera.target.y =
+      500 * Math.cos(ThreeLib.MathUtils.degToRad(90 - latitude))
     this.camera.target.z =
       500 *
       Math.sin(ThreeLib.MathUtils.degToRad(90 - latitude)) *

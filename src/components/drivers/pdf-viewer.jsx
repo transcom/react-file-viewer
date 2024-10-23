@@ -51,12 +51,12 @@ export class PDFPage extends React.Component {
   renderPage(page) {
     try {
       const { containerWidth, zoom } = this.props
-      const initialViewport = page.getViewport({ scale: DEFAULT_SCALE });
-      const calculatedScale =
-        containerWidth / initialViewport.width
+      const initialViewport = page.getViewport({ scale: DEFAULT_SCALE })
+      const calculatedScale = containerWidth / initialViewport.width
       const scale =
-        (calculatedScale > DEFAULT_SCALE ? DEFAULT_SCALE : calculatedScale) + zoom * INCREASE_PERCENTAGE
-      const viewport = page.getViewport({scale})
+        (calculatedScale > DEFAULT_SCALE ? DEFAULT_SCALE : calculatedScale) +
+        zoom * INCREASE_PERCENTAGE
+      const viewport = page.getViewport({ scale })
       const { width, height } = viewport
 
       const context = this.canvas.getContext('2d')
@@ -128,7 +128,14 @@ export default class PDFDriver extends React.Component {
           this.setState({ pdf, containerWidth })
         })
         .catch((error) => {
-          console.error('Error loading PDF:', error)
+          if (
+            typeof this.props.onError != undefined &&
+            this.props.onError != null
+          ) {
+            this.props.onError(error)
+          } else {
+            console.error('Error loading PDF:', error)
+          }
         })
     })()
   }
@@ -167,7 +174,7 @@ export default class PDFDriver extends React.Component {
 
   renderPages() {
     const { pdf, containerWidth, zoom } = this.state
-    if (!pdf) return null;
+    if (!pdf) return null
     const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
     return pages.map((_, i) => (
       <PDFPage

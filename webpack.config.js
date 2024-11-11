@@ -97,6 +97,10 @@ const config = {
   experiments: {
     topLevelAwait: true,
   },
+    optimization: {
+    splitChunks: false,
+    runtimeChunk: false,
+  },
 }
 
 module.exports = config

@@ -115,7 +115,7 @@ export default class PDFDriver extends React.Component {
     // Dynamic import of ESM into CJS
     ;(async () => {
       // sidestep that pdfjs is bundled as esm
-      const pdfjs = await import('pdfjs-dist/webpack')
+      const pdfjs = await import(/* webpackPrefetch: 0, webpackChunkName: "pdfjs-dist-webpack" */ 'pdfjs-dist/webpack');
       const { filePath } = this.props
       const containerWidth = this.container.offsetWidth
       const loadingTask = pdfjs.getDocument(filePath)

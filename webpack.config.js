@@ -19,12 +19,13 @@ const config = {
     library: ['FileViewer'],
     libraryTarget: 'umd',
     publicPath: '/',
+    chunkFilename: '[name].chunk.js',
   },
   resolve: {
     modules: [path.resolve(__dirname, './src'), 'node_modules'],
     extensions: ['.js', '.jsx', '.json', '.mjs'],
   },
-  plugins: [new BundleAnalyzerPlugin({ analyzerMode: 'disabled' })],
+  plugins: [new BundleAnalyzerPlugin()],
   externals: [
     {
       react: {
@@ -96,10 +97,6 @@ const config = {
   },
   experiments: {
     topLevelAwait: true,
-  },
-    optimization: {
-    splitChunks: false,
-    runtimeChunk: false,
   },
 }
 

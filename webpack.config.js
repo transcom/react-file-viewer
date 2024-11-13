@@ -6,8 +6,8 @@ const path = require('path')
 const BUILD_DIR = path.resolve(__dirname, './dist')
 const APP_DIR = path.resolve(__dirname, './src')
 
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin
 
 const config = {
   entry: `${APP_DIR}/components`,
@@ -18,7 +18,7 @@ const config = {
     filename: 'index.js',
     library: ['FileViewer'],
     libraryTarget: 'umd',
-    publicPath: '/',
+    publicPath: '/static/react-file-viewer/',
     chunkFilename: '[name].chunk.js',
   },
   resolve: {

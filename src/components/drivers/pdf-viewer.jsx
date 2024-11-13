@@ -1,98 +1,98 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
 import React from 'react'
-import VisibilitySensor from 'react-visibility-sensor'
 
 const INCREASE_PERCENTAGE = 0.2
 const DEFAULT_SCALE = 1.1
 
 export class PDFPage extends React.Component {
   constructor(props) {
-    super(props)
-    this.state = {}
-    this.onChange = this.onChange.bind(this)
+    super(props);
+    this.canvas = React.createRef();
+    this.state = {
+      isVisible: true,
+    };
   }
 
   componentDidMount() {
-    if (this.props.disableVisibilityCheck) this.fetchAndRenderPage()
+    if (!this.props.disableVisibilityCheck) {
+      this.observer = new IntersectionObserver(([entry]) => {
+        if (entry.target === this.canvas.current) {
+          this.setState({ isVisible: entry.isIntersecting });
+        }
+      });
+      if (this.canvas.current) this.observer.observe(this.canvas.current);
+    }
+    this.fetchAndRenderPage();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (this.props.disableVisibilityCheck) {
-      if (prevProps.zoom !== this.props.zoom) this.fetchAndRenderPage()
-      return
+      if (prevProps.zoom !== this.props.zoom) {
+        this.fetchAndRenderPage();
+      }
+      return;
     }
 
-    // we want to render/re-render in two scenarias
-    // user scrolls to the pdf
-    // user zooms in
     if (
-      prevState.isVisible === this.state.isVisible &&
-      prevProps.zoom === this.props.zoom
-    )
-      return
-    if (this.state.isVisible) this.fetchAndRenderPage()
+      prevProps.zoom !== this.props.zoom ||
+      prevProps.index !== this.props.index ||
+      prevProps.isVisible !== this.state.isVisible
+    ) {
+      this.fetchAndRenderPage();
+    }
   }
 
-  onChange(isVisible) {
-    if (isVisible) this.setState({ isVisible })
+  componentWillUnmount() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
   }
 
   fetchAndRenderPage() {
-    const { pdf, index } = this.props
-    pdf
-      .getPage(index)
-      .then(this.renderPage.bind(this))
-      .catch((error) => {
-        console.error(`Error fetching page ${index}:`, error)
-      })
+    if (this.props.disableVisibilityCheck || this.state.isVisible) {
+      const { pdf, index } = this.props;
+      pdf
+        .getPage(index)
+        .then(this.renderPage.bind(this))
+        .catch((error) => {
+          console.error(`Error fetching page ${index}:`, error);
+        });
+    }
   }
 
   renderPage(page) {
     try {
-      const { containerWidth, zoom } = this.props
-      const initialViewport = page.getViewport({ scale: DEFAULT_SCALE })
-      const calculatedScale = containerWidth / initialViewport.width
+      const { containerWidth, zoom } = this.props;
+      const initialViewport = page.getViewport({ scale: DEFAULT_SCALE });
+      const calculatedScale = containerWidth / initialViewport.width;
       const scale =
         (calculatedScale > DEFAULT_SCALE ? DEFAULT_SCALE : calculatedScale) +
-        zoom * INCREASE_PERCENTAGE
-      const viewport = page.getViewport({ scale })
-      const { width, height } = viewport
+        zoom * INCREASE_PERCENTAGE;
+      const viewport = page.getViewport({ scale });
+      const { width, height } = viewport;
 
-      const context = this.canvas.getContext('2d')
-      this.canvas.width = width
-      this.canvas.height = height
+      const canvas = this.canvas.current;
+      const context = canvas.getContext('2d');
+      canvas.width = width;
+      canvas.height = height;
 
       page.render({
         canvasContext: context,
         viewport,
-      })
+      });
     } catch (error) {
-      console.error(`Error rendering page ${this.props.index}:`, error)
+      console.error(`Error rendering page ${this.props.index}:`, error);
     }
   }
 
   render() {
-    const { index } = this.props
+    const { index } = this.props;
     return (
       <div key={`page-${index}`} className="pdf-canvas">
-        {this.props.disableVisibilityCheck ? (
-          <canvas
-            ref={(node) => (this.canvas = node)}
-            width="670"
-            height="870"
-          />
-        ) : (
-          <VisibilitySensor onChange={this.onChange} partialVisibility>
-            <canvas
-              ref={(node) => (this.canvas = node)}
-              width="670"
-              height="870"
-            />
-          </VisibilitySensor>
-        )}
+        <canvas ref={this.canvas} width="670" height="870" />
       </div>
-    )
+    );
   }
 }
 
@@ -141,12 +141,13 @@ export default class PDFDriver extends React.Component {
   }
 
   componentWillUnmount() {
-    const { pdf } = this.state
-    if (pdf) {
-      pdf.destroy()
-      this.setState({ pdf: null })
+    if (this.state.pdf) {
+      this.state.pdf.destroy().then(() => {
+        this.setState({ pdf: null });
+      });
     }
   }
+
 
   setZoom(zoom) {
     this.setState({

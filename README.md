@@ -156,6 +156,7 @@ If you are working on a feature branch and need to see changes introduced in tha
 ### Testing locally against the mymove application
 Testing locally against the mymove application can be done via yarn link, but for the purpose of being thorough it is recommended to manually test against the `/dist/` output. This verifies the webpack is successfully compiling/transpiling and that the mymove application is successfully serving chunks.
 
+TODO: ENHANCE ME (This is supposed to work, but it doesn't. Fallback is still `rm -rf node_modules && yarn install && ./scripts/copy-react-file-viewer && make client_run`)
 1. [OPTIONAL] Within this repository, navigate to `webpack.config.js`. This is the production webpack.
    1. Find where `  plugins: [new BundleAnalyzerPlugin({ analyzerMode: 'disabled' })]` is located and remove/enable the analyzerMode attribute
    2. This makes it so you can preview the chunks

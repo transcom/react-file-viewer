@@ -25,7 +25,7 @@ const config = {
     modules: [path.resolve(__dirname, './src'), 'node_modules'],
     extensions: ['.js', '.jsx', '.json', '.mjs'],
   },
-  plugins: [new BundleAnalyzerPlugin()],
+  plugins: [new BundleAnalyzerPlugin({ analyzerMode: 'disabled' })],
   externals: [
     {
       react: {

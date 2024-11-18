@@ -64,8 +64,8 @@
     "chalk": "^4.1.0",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.1",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
+    "enzyme": "^3.11.0",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
     "enzyme-wait": "^1.0.9",
     "eslint": "^7.3.1",
     "eslint-config-prettier": "^6.11.0",
@@ -88,7 +88,7 @@
     "prettier": "^2.0.5",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "react-test-renderer": "^16.6.3",
+    "react-test-renderer": "^17.0.1",
     "sass-loader": "^10.1.1",
     "style-loader": "^1.2.1",
     "url-loader": "^4.1.0",
@@ -149,7 +149,7 @@
     "testPathIgnorePatterns": [
       "<rootDir>/(build|scripts|example_files)/"
     ],
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "transform": {
       "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
       "^.+\\.(css|scss)$": "<rootDir>/config/jest/cssTransform.js",

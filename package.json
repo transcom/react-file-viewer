@@ -112,7 +112,7 @@
     "react-visibility-sensor": "^5.0.2",
     "sass": "^1.77.2",
     "three": "^0.169.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "resolutions": {
     "_comment": "Cheerio is pinned to version 1.0.0-rc.10 to resolve enzyme issue https://github.com/enzymejs/enzyme/issues/2518",

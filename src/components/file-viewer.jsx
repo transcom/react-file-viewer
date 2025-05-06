@@ -24,6 +24,7 @@ class FileViewer extends Component {
   }
 
   getDriver() {
+    console.log('get driver in file-viewer')
     switch (this.props.fileType) {
       case 'pdf': {
         return PDFViewer

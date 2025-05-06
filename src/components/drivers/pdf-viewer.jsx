@@ -126,7 +126,6 @@ export default class PDFDriver extends React.Component {
       pdf: null,
       zoom: 0,
       percent: 0,
-      rotationValue: 0,
     }
 
     this.increaseZoom = this.increaseZoom.bind(this)
@@ -134,21 +133,18 @@ export default class PDFDriver extends React.Component {
     this.resetZoom = this.resetZoom.bind(this)
     this.rotateLeft = this.rotateLeft.bind(this)
     this.rotateRight = this.rotateRight.bind(this)
-    console.log('rotationValue in react file viewer')
   }
 
   rotateLeft() {
-    console.log('rotateLeft in react file viewer')
-    this.setState((prevState) => ({
-      rotationValue: (prevState.rotationValue - 90 + 360) % 360,
-    }));
+    const { rotationValue = 0, setRotationValue } = this.props
+    const newRotation = (rotationValue + 270) % 360
+    setRotationValue(newRotation)
   }
 
   rotateRight() {
-    console.log('rotateRight in react file viewer')
-    this.setState((prevState) => ({
-      rotationValue: (prevState.rotationValue + 90) % 360,
-    }));
+    const { rotationValue = 0, setRotationValue } = this.props
+    const newRotation = (rotationValue + 90) % 360
+    setRotationValue(newRotation)
   }
 
   componentDidMount() {
@@ -232,7 +228,8 @@ export default class PDFDriver extends React.Component {
 
   renderPages() {
     console.log('renderPages in react file viewer')
-    const { pdf, containerWidth, zoom, rotationValue } = this.state
+    const { pdf, containerWidth, zoom } = this.state
+    const { rotationValue } = this.props
     if (!pdf) return null
     const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
     return pages.map((_, i) => (

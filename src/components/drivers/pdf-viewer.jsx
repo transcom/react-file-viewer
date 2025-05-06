@@ -130,7 +130,6 @@ export default class PDFDriver extends React.Component {
       pdf: null,
       zoom: 0,
       percent: 0,
-      rotationValue: 0,
     }
 
     this.increaseZoom = this.increaseZoom.bind(this)
@@ -140,18 +139,21 @@ export default class PDFDriver extends React.Component {
     this.rotateRight = this.rotateRight.bind(this)
   }
 
-  rotateLeft() {
-    this.setState((prevState) => ({
-      rotationValue: (prevState.rotationValue - 90 + 360) % 360,
-    }));
-  }
-  
-  rotateRight() {
-    this.setState((prevState) => ({
-      rotationValue: (prevState.rotationValue + 90) % 360,
-    }));
+  updateRotation(rot) {
+    if (rot >= 0 && rot <= 270) {
+      this.props.setRotationValue(rot);
+    }
   }
 
+  rotateLeft() {
+    const newRotation = (this.props.rotationValue - 90 +360) % 360;
+    this.updateRotation(newRotation);
+  }
+
+  rotateRight() {
+    const newRotation = (this.props.rotationValue + 90) % 360;
+    this.updateRotation(newRotation);
+  } 
   componentDidMount() {
     // Dynamic import of ESM into CJS
     ;(async () => {
@@ -231,7 +233,8 @@ export default class PDFDriver extends React.Component {
   }
 
   renderPages() {
-    const { pdf, containerWidth, zoom, rotationValue } = this.state
+    const { pdf, containerWidth, zoom } = this.state
+    const { rotationValue } = this.props;
     if (!pdf) return null
     const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
     return pages.map((_, i) => (

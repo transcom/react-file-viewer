@@ -36,8 +36,6 @@ export class PDFPage extends React.Component {
         prevProps.isVisible !== this.state.isVisible)
 
     if (needsRerender) {
-      console.log('needsRerender')
-      console.log(needsRerender)
       this.fetchAndRenderPage()
     }
   }
@@ -53,7 +51,6 @@ export class PDFPage extends React.Component {
   }
 
   fetchAndRenderPage() {
-    console.log('fetchAndRenderPage')
     // Make sure current render tasks are cancelled before starting a new one
     if (this.renderTask) {
       this.renderTask.cancel()
@@ -72,7 +69,6 @@ export class PDFPage extends React.Component {
   }
 
   renderPage(page) {
-    console.log('renderPage')
     try {
       const { containerWidth, zoom, rotation } = this.props
       const initialViewport = page.getViewport({ scale: DEFAULT_SCALE })
@@ -148,7 +144,6 @@ export default class PDFDriver extends React.Component {
   }
 
   componentDidMount() {
-    console.log('componentDidMount in react file viewer')
     // Dynamic import of ESM into CJS
     ;(async () => {
       // sidestep that pdfjs is bundled as esm
@@ -227,7 +222,6 @@ export default class PDFDriver extends React.Component {
   }
 
   renderPages() {
-    console.log('renderPages in react file viewer')
     const { pdf, containerWidth, zoom } = this.state
     const { rotationValue } = this.props
     if (!pdf) return null

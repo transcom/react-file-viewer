@@ -27,14 +27,12 @@ class FileViewer extends Component {
     console.log('get driver in file-viewer')
     switch (this.props.fileType) {
       case 'pdf': {
-        console.log('pdf viewer')
         return PDFViewer
       }
       case 'jpg':
       case 'jpeg':
       case 'gif':
       case 'png': {
-        console.log('photo viewer')
         return PhotoViewerWrapper
       }
       default: {

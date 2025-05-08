@@ -28,22 +28,14 @@ export class PDFPage extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.disableVisibilityCheck) {
-      if (
-        prevProps.zoom !== this.props.zoom ||
-        prevProps.rotation !== this.props.rotation
-      ) {
-        this.fetchAndRenderPage()
-      }
-      return
-    }
-
-    if (
+    const needsRerender =
       prevProps.zoom !== this.props.zoom ||
       prevProps.rotation !== this.props.rotation ||
       prevProps.index !== this.props.index ||
-      prevProps.isVisible !== this.state.isVisible
-    ) {
+      (this.props.disableVisibilityCheck !== true &&
+        prevProps.isVisible !== this.state.isVisible)
+
+    if (needsRerender) {
       this.fetchAndRenderPage()
     }
   }
@@ -130,7 +122,6 @@ export default class PDFDriver extends React.Component {
       pdf: null,
       zoom: 0,
       percent: 0,
-      rotationValue: 0,
     }
 
     this.increaseZoom = this.increaseZoom.bind(this)
@@ -141,15 +132,15 @@ export default class PDFDriver extends React.Component {
   }
 
   rotateLeft() {
-    this.setState((prevState) => ({
-      rotationValue: (prevState.rotationValue - 90 + 360) % 360,
-    }));
+    const { rotationValue = 0, setRotationValue } = this.props
+    const newRotation = (rotationValue + 270) % 360
+    setRotationValue(newRotation)
   }
-  
+
   rotateRight() {
-    this.setState((prevState) => ({
-      rotationValue: (prevState.rotationValue + 90) % 360,
-    }));
+    const { rotationValue = 0, setRotationValue } = this.props
+    const newRotation = (rotationValue + 90) % 360
+    setRotationValue(newRotation)
   }
 
   componentDidMount() {
@@ -231,13 +222,14 @@ export default class PDFDriver extends React.Component {
   }
 
   renderPages() {
-    const { pdf, containerWidth, zoom, rotationValue } = this.state
+    const { pdf, containerWidth, zoom } = this.state
+    const { rotationValue } = this.props
     if (!pdf) return null
     const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
     return pages.map((_, i) => (
       <PDFPage
+        key={`pdfPage_${i}_${rotationValue}`}
         index={i + 1}
-        key={`pdfPage_${i}`}
         pdf={pdf}
         containerWidth={containerWidth}
         zoom={zoom * INCREASE_PERCENTAGE}

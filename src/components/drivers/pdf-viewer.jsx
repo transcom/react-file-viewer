@@ -118,9 +118,12 @@ export default class PDFDriver extends React.Component {
   constructor(props) {
     super(props)
 
+    // zoom steps: 10% through 200%
+    this.zoomSteps = [0.1, 0.25, 0.5, 0.75, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0]
+
     this.state = {
       pdf: null,
-      zoom: 0,
+      zoomStepIndex: 4, // default to 1.0 (100%)
       percent: 0,
     }
 
@@ -141,6 +144,24 @@ export default class PDFDriver extends React.Component {
     const { rotationValue = 0, setRotationValue } = this.props
     const newRotation = (rotationValue + 90) % 360
     setRotationValue(newRotation)
+  }
+
+  increaseZoom() {
+    const { zoomStepIndex } = this.state
+    if (zoomStepIndex < this.zoomSteps.length - 1) {
+      this.setState({ zoomStepIndex: zoomStepIndex + 1 })
+    }
+  }
+
+  reduceZoom() {
+    const { zoomStepIndex } = this.state
+    if (zoomStepIndex > 0) {
+      this.setState({ zoomStepIndex: zoomStepIndex - 1 })
+    }
+  }
+
+  resetZoom() {
+    this.setState({ zoomStepIndex: 4 })
   }
 
   componentDidMount() {
@@ -197,10 +218,8 @@ export default class PDFDriver extends React.Component {
     }
   }
 
-  setZoom(zoom) {
-    this.setState({
-      zoom,
-    })
+  setZoom(index) {
+    this.setState({ zoomStepIndex: index })
   }
 
   progressCallback(progress) {
@@ -208,23 +227,11 @@ export default class PDFDriver extends React.Component {
     this.setState({ percent })
   }
 
-  reduceZoom() {
-    if (this.state.zoom === 0) return
-    this.setZoom(this.state.zoom - 1)
-  }
-
-  increaseZoom() {
-    this.setZoom(this.state.zoom + 1)
-  }
-
-  resetZoom() {
-    this.setZoom(0)
-  }
-
   renderPages() {
-    const { pdf, containerWidth, zoom } = this.state
+    const { pdf, containerWidth, zoomStepIndex } = this.state
     const { rotationValue } = this.props
     if (!pdf) return null
+    const zoom = this.zoomSteps[zoomStepIndex]
     const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
     return pages.map((_, i) => (
       <PDFPage
@@ -232,7 +239,7 @@ export default class PDFDriver extends React.Component {
         index={i + 1}
         pdf={pdf}
         containerWidth={containerWidth}
-        zoom={zoom * INCREASE_PERCENTAGE}
+        zoom={zoom}
         rotation={rotationValue}
         disableVisibilityCheck={this.props.disableVisibilityCheck}
       />
@@ -255,6 +262,9 @@ export default class PDFDriver extends React.Component {
             handleZoomOut: this.reduceZoom,
             handleRotateLeft: this.rotateLeft,
             handleRotateRight: this.rotateRight,
+            zoomPercentage: Math.round(
+              this.zoomSteps[this.state.zoomStepIndex] * 100
+            ),
           })
         ) : (
           <div className="pdf-controls-container">

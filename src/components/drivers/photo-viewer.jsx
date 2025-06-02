@@ -97,7 +97,7 @@ export default class PhotoViewer extends Component {
       justifyContent: 'center',
       height: '100%',
       width: '100%',
-      paddingTop: '75px',
+      paddingTop: '150px',
     }
 
     const containerStyles = {

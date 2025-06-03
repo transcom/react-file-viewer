@@ -64,13 +64,12 @@ export default class PhotoViewer extends Component {
   }
 
   componentDidMount() {
-    this.props.texture.image.style.maxWidth = '100%'
-    this.props.texture.image.style.maxHeight = '100%'
     this.props.texture.image.style.width = 'auto'
     this.props.texture.image.style.height = 'auto'
-    this.props.texture.image.style.transformOrigin = 'center center'
     this.props.texture.image.setAttribute('class', 'photo')
-    this.props.texture.image.setAttribute('z-index', '0')
+    this.props.texture.image.style.display = 'block'
+    this.props.texture.image.style.marginLeft = 'auto'
+    this.props.texture.image.style.marginRight = 'auto'
     document
       .getElementById('photo-viewer-image-container')
       .appendChild(this.props.texture.image)
@@ -85,29 +84,39 @@ export default class PhotoViewer extends Component {
   }
 
   render() {
-    const { renderControls, texture, rotationValue } = this.props
+    const { renderControls, rotationValue } = this.props
     const { zoomStepIndex } = this.state
     const zoomScale = this.baseZoomRatio * this.zoomSteps[zoomStepIndex]
 
     const scaleContainerStyle = {
       transformOrigin: 'center',
       transform: `scale(${zoomScale})`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
       height: '100%',
       width: '100%',
-      paddingTop: '150px',
     }
 
     const containerStyles = {
       width: `${this.props.width}px`,
       height: `${this.props.height - 50}px`,
-      zIndex: 1,
+      overflow: `auto`,
+    }
+
+    const imageContainerStyles = {
+      display: 'flex',
     }
 
     if (rotationValue !== undefined) {
-      texture.image.style.transform = `rotate(${rotationValue * 90}deg)`
+      let translationX = 0
+      if (rotationValue === 1) {
+        translationX = 25
+      }
+      if (rotationValue === 3) {
+        translationX = -25
+      }
+
+      imageContainerStyles.transform = `rotate(${
+        rotationValue * 90
+      }deg) translate(${translationX}%, 0%)`
     }
 
     return (
@@ -121,7 +130,8 @@ export default class PhotoViewer extends Component {
           style={scaleContainerStyle}>
           <div
             className="photo-viewer-image-container"
-            id="photo-viewer-image-container">
+            id="photo-viewer-image-container"
+            style={imageContainerStyles}>
             &nbsp;
           </div>
         </div>

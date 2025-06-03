@@ -31,6 +31,15 @@ export default class PhotoViewer extends Component {
 
   setZoom(index) {
     this.setState({ zoomStepIndex: index })
+
+    const scaleContainer = document.getElementById(
+      'photo-viewer-scale-container'
+    )
+
+    // Redraw container to bypass bug in chromium browsers where overflow scrollbars do not render consistently
+    scaleContainer.style.display = 'none'
+    scaleContainer.offsetHeight
+    scaleContainer.style.display = 'block'
   }
 
   increaseZoom() {
@@ -87,10 +96,13 @@ export default class PhotoViewer extends Component {
     const { renderControls, rotationValue } = this.props
     const { zoomStepIndex } = this.state
     const zoomScale = this.baseZoomRatio * this.zoomSteps[zoomStepIndex]
+    const scaleTranslation =
+      zoomScale > this.baseZoomRatio ? 12.5 * this.zoomSteps[zoomStepIndex] : 0
 
     const scaleContainerStyle = {
-      transformOrigin: 'center',
-      transform: `scale(${zoomScale})`,
+      display: 'block',
+      transformOrigin: 'center center',
+      transform: `scale(${zoomScale}) translate(${scaleTranslation}%, ${scaleTranslation}%)`,
       height: '100%',
       width: '100%',
     }
@@ -109,9 +121,11 @@ export default class PhotoViewer extends Component {
       let translationX = 0
       if (rotationValue === 1) {
         translationX = 25
+        imageContainerStyles.marginTop = '4em'
       }
       if (rotationValue === 3) {
         translationX = -25
+        imageContainerStyles.marginTop = '4em'
       }
 
       imageContainerStyles.transform = `rotate(${

@@ -118,8 +118,31 @@ export default class PDFDriver extends React.Component {
   constructor(props) {
     super(props)
 
-    // zoom steps: 10% through 200%
-    this.zoomSteps = [0.1, 0.25, 0.5, 0.75, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0]
+    // zoom steps: 10% through 500%
+    this.zoomSteps = [
+      0.1,
+      0.25,
+      0.5,
+      0.75,
+      1.0,
+      1.1,
+      1.25,
+      1.5,
+      1.75,
+      2.0,
+      2.25,
+      2.5,
+      2.75,
+      3.0,
+      3.25,
+      3.5,
+      3.75,
+      4.0,
+      4.25,
+      4.5,
+      4.75,
+      5.0,
+    ]
 
     this.state = {
       pdf: null,

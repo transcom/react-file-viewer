@@ -1,6 +1,6 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
-import React, { Component } from 'react'
+import React, { Component, createRef } from 'react'
 import PropTypes from 'prop-types'
 import 'styles/main.scss'
 
@@ -16,11 +16,29 @@ class FileViewer extends Component {
     }
   }
 
+  resiveObserver = null
+  resizeElement = createRef()
+
   componentDidMount() {
     const container = document.getElementById('pg-viewer')
     const height = container ? container.clientHeight : 0
     const width = container ? container.clientWidth : 0
     this.setState({ height, width })
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        this.setState({
+          height: entry.contentRect.height,
+          width: entry.contentRect.width,
+        })
+      }
+    })
+
+    this.resizeObserver.observe(this.resizeElement.current)
+  }
+
+  componentWillUnmount() {
+    this.resizeObserver?.disconnect()
   }
 
   getDriver() {
@@ -43,7 +61,7 @@ class FileViewer extends Component {
   render() {
     const Driver = this.getDriver(this.props)
     return (
-      <div className="pg-viewer-wrapper">
+      <div className="pg-viewer-wrapper" ref={this.resizeElement}>
         <div className="pg-viewer" id="pg-viewer">
           <Driver
             {...this.props}

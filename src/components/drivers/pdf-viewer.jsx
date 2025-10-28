@@ -108,7 +108,7 @@ export class PDFPage extends React.Component {
     const { index } = this.props
     return (
       <div key={`page-${index}`} className="pdf-canvas">
-        <canvas ref={this.canvas} width="670" height="870" />
+        <canvas ref={this.canvas} width="670" height="870" aria-hidden="true" />
       </div>
     )
   }
@@ -120,8 +120,28 @@ export default class PDFDriver extends React.Component {
 
     // zoom steps: 10% through 500%
     this.zoomSteps = [
-      0.1, 0.25, 0.5, 0.75, 1.0, 1.1, 1.25, 1.5, 1.75,
-      2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0, 
+      0.1,
+      0.25,
+      0.5,
+      0.75,
+      1.0,
+      1.1,
+      1.25,
+      1.5,
+      1.75,
+      2.0,
+      2.25,
+      2.5,
+      2.75,
+      3.0,
+      3.25,
+      3.5,
+      3.75,
+      4.0,
+      4.25,
+      4.5,
+      4.75,
+      5.0,
     ]
 
     this.state = {

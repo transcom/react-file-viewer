@@ -1,5 +1,10 @@
 // Copyright (c) 2017 PlanGrid, Inc.
 
+:root {
+  --photo-viewer-container-height: 100%;
+  --photo-viewer-container-width: 100%;
+}
+
 .pg-viewer-wrapper {
   .photo-viewer-container {
     align-items: center;
@@ -8,5 +13,7 @@
     height: 100%;
     justify-content: center;
     width: 100%;
+    height: var(--photo-viewer-container-height);
+    width: var(--photo-viewer-container-width);
   }
 }

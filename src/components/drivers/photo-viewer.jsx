@@ -4,38 +4,107 @@ import React, { Component } from 'react'
 
 import 'styles/photo-viewer.scss'
 
+const ZOOM_VALUES = [
+  0.1,
+  0.25,
+  0.5,
+  0.75,
+  1.0,
+  1.1,
+  1.25,
+  1.5,
+  1.75,
+  2.0,
+  2.25,
+  2.5,
+  2.75,
+  3.0,
+]
+
+// Create immutable Map for zoom steps
+const ZOOM_STEPS = new Map(ZOOM_VALUES.map((value, index) => [index, value]))
+Object.freeze(ZOOM_STEPS)
+
+const MAX_ZOOM_INDEX = ZOOM_VALUES.length - 1
+const CONTROLS_HEIGHT = 50
+const CONTAINER_BUFFER = 40
+const PADDING_THRESHOLD = -30
+const STATIC_PADDING = 20
+const MAX_DYNAMIC_PADDING = 100
+const MIN_CONTAINER_PADDING = 90
+const WIDTH_FIT_SCALE = 0.95
+
 export default class PhotoViewer extends Component {
   constructor(props) {
     super(props)
 
-    const { originalHeight, height: viewerHeight } = props
-    const heightRatio = viewerHeight / originalHeight
-    // by default we want to fill the viewport vertically
-    const defaultZoomRatio = heightRatio > 1 ? heightRatio : 1
+    const { originalHeight, originalWidth, width: viewerWidth } = props
 
-    // zoom steps: 10% through 200%
-    this.zoomSteps = [0.1, 0.25, 0.5, 0.75, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0]
-
-    this.baseZoomRatio = defaultZoomRatio
-    const closestZoomIndex = this.zoomSteps.findIndex((z) => z === 1.0)
+    const bestFitZoomIndex = this.calculateBestFitZoom(
+      originalWidth,
+      originalHeight,
+      viewerWidth
+    )
 
     this.state = {
-      zoomStepIndex: closestZoomIndex !== -1 ? closestZoomIndex : 0,
+      zoomStepIndex: bestFitZoomIndex,
+      horizontalPadding: 0,
+      verticalPadding: 0,
     }
 
     this.increaseZoom = this.increaseZoom.bind(this)
     this.reduceZoom = this.reduceZoom.bind(this)
     this.rotateLeft = this.rotateLeft.bind(this)
     this.rotateRight = this.rotateRight.bind(this)
+    this.updateImageDimensions = this.updateImageDimensions.bind(this)
+  }
+
+  // Helper to safely get zoom value from Map
+  getZoomValue(index) {
+    // Validate index is within bounds
+    const safeIndex = Math.max(
+      0,
+      Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX)
+    )
+    // Map.get() returns undefined for invalid keys
+    return ZOOM_STEPS.get(safeIndex) || 1.0 // Fallback to 100%
+  }
+
+  findClosestZoomStep(targetScale) {
+    let closestIndex = 0
+    let smallestDiff = Math.abs(ZOOM_VALUES[0] - targetScale)
+
+    ZOOM_VALUES.forEach((step, index) => {
+      const diff = Math.abs(step - targetScale)
+      if (diff < smallestDiff) {
+        smallestDiff = diff
+        closestIndex = index
+      }
+    })
+
+    return closestIndex
+  }
+
+  calculateBestFitZoom(imageWidth, imageHeight, containerWidth) {
+    if (imageWidth > imageHeight) {
+      const scaleWidth = (containerWidth / imageWidth) * WIDTH_FIT_SCALE
+      return this.findClosestZoomStep(scaleWidth)
+    }
+
+    return this.findClosestZoomStep(1.0)
   }
 
   setZoom(index) {
-    this.setState({ zoomStepIndex: index })
+    const safeIndex = Math.max(
+      0,
+      Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX)
+    )
+    this.setState({ zoomStepIndex: safeIndex })
   }
 
   increaseZoom() {
     const { zoomStepIndex } = this.state
-    if (zoomStepIndex < this.zoomSteps.length - 1) {
+    if (zoomStepIndex < MAX_ZOOM_INDEX) {
       this.setZoom(zoomStepIndex + 1)
     }
   }
@@ -63,59 +132,208 @@ export default class PhotoViewer extends Component {
     this.updateRotation(newRotation)
   }
 
+  calculatePadding(dimension, containerSize, useDynamicPadding = false) {
+    const diff = dimension - containerSize
+    if (diff < PADDING_THRESHOLD) return 0
+
+    if (useDynamicPadding) {
+      return Math.min(Math.abs(diff), MAX_DYNAMIC_PADDING)
+    }
+
+    return STATIC_PADDING
+  }
+
+  getRotationConfig(width, height, rotation) {
+    const isRotated90or270 = rotation % 2 === 1
+    return {
+      horizontal: isRotated90or270 ? height : width,
+      vertical: isRotated90or270 ? width : height,
+      useDynamicVertical: !isRotated90or270,
+    }
+  }
+
+  applyRotatedPadding(image, horizontal, vertical, rotation) {
+    const paddingMap = [
+      { top: vertical, right: horizontal, bottom: 0, left: 0 },
+      { top: horizontal, right: 0, bottom: 0, left: vertical },
+      { top: 0, right: 0, bottom: vertical, left: horizontal },
+      { top: 0, right: vertical, bottom: horizontal, left: 0 },
+    ]
+
+    const padding = paddingMap[rotation] || paddingMap[0]
+    Object.assign(image.style, {
+      paddingTop: `${padding.top}px`,
+      paddingRight: `${padding.right}px`,
+      paddingBottom: `${padding.bottom}px`,
+      paddingLeft: `${padding.left}px`,
+    })
+  }
+
+  updateImageDimensions() {
+    const {
+      texture,
+      originalHeight,
+      originalWidth,
+      rotationValue = 0,
+      width,
+      height,
+    } = this.props
+    const { zoomStepIndex } = this.state
+    const zoomScale = this.getZoomValue(zoomStepIndex)
+
+    if (!texture?.image) return
+
+    const image = texture.image
+    const newWidth = originalWidth * zoomScale
+    const newHeight = originalHeight * zoomScale
+
+    const { horizontal, vertical, useDynamicVertical } = this.getRotationConfig(
+      newWidth,
+      newHeight,
+      rotationValue
+    )
+
+    const horizontalPadding = this.calculatePadding(horizontal, width, false)
+    const verticalPadding = this.calculatePadding(
+      vertical,
+      height - CONTROLS_HEIGHT,
+      useDynamicVertical
+    )
+
+    this.setState({ horizontalPadding, verticalPadding })
+
+    Object.assign(image.style, {
+      width: `${newWidth}px`,
+      height: `${newHeight}px`,
+      maxWidth: 'none',
+      maxHeight: 'none',
+      transform: 'none',
+      display: 'block',
+    })
+
+    this.applyRotatedPadding(
+      image,
+      horizontalPadding,
+      verticalPadding,
+      rotationValue
+    )
+  }
+
   componentDidMount() {
-    this.props.texture.image.style.maxWidth = '100%'
-    this.props.texture.image.style.maxHeight = '100%'
-    this.props.texture.image.style.width = 'auto'
-    this.props.texture.image.style.height = 'auto'
-    this.props.texture.image.style.transformOrigin = 'center center'
-    this.props.texture.image.setAttribute('class', 'photo')
-    this.props.texture.image.setAttribute('z-index', '0')
-    document
-      .getElementById('photo-viewer-image-container')
-      .appendChild(this.props.texture.image)
+    const { texture } = this.props
+    const container = document.getElementById('photo-viewer-image-container')
+
+    texture.image.setAttribute('class', 'photo')
+    texture.image.setAttribute('z-index', '0')
+    container.appendChild(texture.image)
+
+    this.updateImageDimensions()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const zoomChanged = prevState.zoomStepIndex !== this.state.zoomStepIndex
+    const rotationChanged = prevProps.rotationValue !== this.props.rotationValue
+
+    if (zoomChanged || rotationChanged) {
+      this.updateImageDimensions()
+    }
   }
 
   componentWillUnmount() {
     const { texture } = this.props
-    const image = texture.image
-    if (image.parentNode) {
+    const image = texture?.image
+    if (image?.parentNode) {
       image.parentNode.removeChild(image)
     }
   }
 
-  render() {
-    const { renderControls, texture, rotationValue } = this.props
-    const { zoomStepIndex } = this.state
-    const zoomScale = this.baseZoomRatio * this.zoomSteps[zoomStepIndex]
+  calculateUncappedVerticalPadding(zoomScale, rotationValue, height) {
+    const { vertical } = this.getRotationConfig(
+      this.props.originalWidth * zoomScale,
+      this.props.originalHeight * zoomScale,
+      rotationValue
+    )
+    const isRotated0or180 = rotationValue % 2 === 0
+    const diff = vertical - (height - CONTROLS_HEIGHT)
 
-    const scaleContainerStyle = {
-      transformOrigin: 'center',
-      transform: `scale(${zoomScale})`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100%',
-      width: '100%',
-      paddingTop: '75px',
-    }
+    return Math.max(
+      MIN_CONTAINER_PADDING,
+      isRotated0or180 && diff >= PADDING_THRESHOLD
+        ? Math.abs(diff)
+        : STATIC_PADDING
+    )
+  }
+
+  render() {
+    const {
+      renderControls,
+      rotationValue = 0,
+      originalWidth,
+      originalHeight,
+      width,
+      height,
+    } = this.props
+    const { zoomStepIndex, horizontalPadding, verticalPadding } = this.state
+    const zoomScale = this.getZoomValue(zoomStepIndex)
+
+    const isRotated90or270 = rotationValue % 2 === 1
+    const rotatedWidth = isRotated90or270
+      ? originalHeight * zoomScale
+      : originalWidth * zoomScale
+    const rotatedHeight = isRotated90or270
+      ? originalWidth * zoomScale
+      : originalHeight * zoomScale
+
+    const uncappedVerticalPadding = this.calculateUncappedVerticalPadding(
+      zoomScale,
+      rotationValue,
+      height
+    )
+
+    const containerDimension = isRotated90or270 ? height : width
+    const overflowDiff = Math.max(
+      0,
+      originalWidth * zoomScale - containerDimension + CONTAINER_BUFFER
+    )
+    const isPositive = rotationValue < 2
+    const offset = (isPositive ? overflowDiff : -overflowDiff) / 2
 
     const containerStyles = {
+      maxWidth: `${width}px`,
+      maxHeight: `${height - CONTROLS_HEIGHT + verticalPadding * 2}px`,
+      overflow: 'auto',
       zIndex: 1,
     }
 
-    const documentRoot = document.documentElement
-    documentRoot.style.setProperty(
-      '--photo-viewer-container-height',
-      this.props.height ? `${this.props.height - 50}px` : '100%'
-    )
-    documentRoot.style.setProperty(
-      '--photo-viewer-container-width',
-      this.props.width ? `${this.props.width}px` : '100%'
-    )
+    const imageContainerStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transform: `rotate(${rotationValue * 90}deg) translate(${offset}px)`,
+      transformOrigin: 'center center',
+    }
 
-    if (rotationValue !== undefined) {
-      texture.image.style.transform = `rotate(${rotationValue * 90}deg)`
+    const scaleContainerStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100%',
+      minWidth: '100%',
+      width: `${Math.max(
+        rotatedWidth +
+          Math.abs(offset) +
+          horizontalPadding * 2 +
+          CONTAINER_BUFFER,
+        width
+      )}px`,
+      height: `${Math.max(
+        rotatedHeight +
+          Math.abs(offset) +
+          verticalPadding * 2 +
+          CONTAINER_BUFFER,
+        height - CONTROLS_HEIGHT + verticalPadding * 2
+      )}px`,
+      paddingTop: `${uncappedVerticalPadding}px`,
     }
 
     return (
@@ -129,7 +347,8 @@ export default class PhotoViewer extends Component {
           style={scaleContainerStyle}>
           <div
             className="photo-viewer-image-container"
-            id="photo-viewer-image-container">
+            id="photo-viewer-image-container"
+            style={imageContainerStyle}>
             &nbsp;
           </div>
         </div>
@@ -139,9 +358,7 @@ export default class PhotoViewer extends Component {
             handleZoomOut: this.reduceZoom,
             handleRotateLeft: this.rotateLeft,
             handleRotateRight: this.rotateRight,
-            zoomPercentage: Math.round(
-              this.zoomSteps[this.state.zoomStepIndex] * 100
-            ),
+            zoomPercentage: Math.round(this.getZoomValue(zoomStepIndex) * 100),
           })
         ) : (
           <div className="photo-controls-container">

@@ -101,10 +101,18 @@ export default class PhotoViewer extends Component {
     }
 
     const containerStyles = {
-      width: `${this.props.width}px`,
-      height: `${this.props.height - 50}px`,
       zIndex: 1,
     }
+
+    const documentRoot = document.documentElement
+    documentRoot.style.setProperty(
+      '--photo-viewer-container-height',
+      this.props.height ? `${this.props.height - 50}px` : '100%'
+    )
+    documentRoot.style.setProperty(
+      '--photo-viewer-container-width',
+      this.props.width ? `${this.props.width}px` : '100%'
+    )
 
     if (rotationValue !== undefined) {
       texture.image.style.transform = `rotate(${rotationValue * 90}deg)`

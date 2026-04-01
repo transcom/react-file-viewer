@@ -154,10 +154,10 @@ export default class PhotoViewer extends Component {
 
   applyRotatedPadding(image, horizontal, vertical, rotation) {
     const paddingMap = [
-      { top: vertical, right: horizontal, bottom: 0, left: 0 },
-      { top: horizontal, right: 0, bottom: 0, left: vertical },
-      { top: 0, right: 0, bottom: vertical, left: horizontal },
-      { top: 0, right: vertical, bottom: horizontal, left: 0 },
+      { top: vertical, right: horizontal, bottom: 0, left: 0 }, // 0 deg
+      { top: horizontal, right: 0, bottom: 0, left: vertical }, // 90 deg
+      { top: 0, right: 0, bottom: vertical, left: horizontal }, // 180 deg
+      { top: 0, right: vertical, bottom: horizontal, left: 0 }, // 270 deg
     ]
 
     const padding = paddingMap[rotation] || paddingMap[0]

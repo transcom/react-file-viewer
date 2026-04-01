@@ -9,7 +9,7 @@ export class PDFPage extends React.Component {
     this.state = {
       isVisible: true,
     }
-    this.renderTask = null
+    this.renderTask = null // Stores the page rendering task for proper canvas handling
   }
 
   componentDidMount() {
@@ -48,6 +48,7 @@ export class PDFPage extends React.Component {
   }
 
   fetchAndRenderPage() {
+    // Make sure current render tasks are cancelled before starting a new one
     if (this.renderTask) {
       this.renderTask.cancel()
       this.renderTask = null
@@ -75,13 +76,16 @@ export class PDFPage extends React.Component {
       canvas.width = width
       canvas.height = height
 
+      // Store the active render task
       this.renderTask = page.render({
         canvasContext: context,
         viewport,
       })
 
+      // Handle completion of rendering
       this.renderTask.promise
         .then(() => {
+          // Rendering complete, clear the task
           this.renderTask = null
         })
         .catch((error) => {
@@ -257,6 +261,8 @@ export default class PDFDriver extends React.Component {
       if (!this._isMounted) return
 
       if (this.pdf) {
+        // Attempting to mount a new PDF when one already exists
+        // Destroy the current PDF and reload the new one
         this.pdf.destroy()
       }
 

@@ -59,15 +59,12 @@ export default class PhotoViewer extends Component {
     this.updateImageDimensions = this.updateImageDimensions.bind(this)
   }
 
-  // Helper to safely get zoom value from Map
+  getSafeIndex(index) {
+    return Math.max(0, Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX))
+  }
+
   getZoomValue(index) {
-    // Validate index is within bounds
-    const safeIndex = Math.max(
-      0,
-      Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX)
-    )
-    // Map.get() returns undefined for invalid keys
-    return ZOOM_STEPS.get(safeIndex) || 1.0 // Fallback to 100%
+    return ZOOM_STEPS.get(this.getSafeIndex(index)) || 1.0
   }
 
   findClosestZoomStep(targetScale) {
@@ -95,11 +92,7 @@ export default class PhotoViewer extends Component {
   }
 
   setZoom(index) {
-    const safeIndex = Math.max(
-      0,
-      Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX)
-    )
-    this.setState({ zoomStepIndex: safeIndex })
+    this.setState({ zoomStepIndex: this.getSafeIndex(index) })
   }
 
   increaseZoom() {

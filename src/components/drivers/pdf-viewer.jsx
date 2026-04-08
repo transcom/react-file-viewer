@@ -158,13 +158,12 @@ export default class PDFDriver extends React.Component {
     this.loadPDF = this.loadPDF.bind(this)
   }
 
-  // Helper to safely get zoom value from Map
+  getSafeIndex(index) {
+    return Math.max(0, Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX))
+  }
+
   getZoomValue(index) {
-    const safeIndex = Math.max(
-      0,
-      Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX)
-    )
-    return ZOOM_STEPS.get(safeIndex) || 1.0 // Fallback to 100%
+    return ZOOM_STEPS.get(this.getSafeIndex(index)) || 1.0
   }
 
   rotateLeft() {
@@ -180,11 +179,7 @@ export default class PDFDriver extends React.Component {
   }
 
   increaseZoom() {
-    const { zoomStepIndex } = this.state
-    const safeIndex = Math.max(
-      0,
-      Math.min(Math.floor(Number(zoomStepIndex) || 0), MAX_ZOOM_INDEX)
-    )
+    const safeIndex = this.getSafeIndex(this.state.zoomStepIndex)
     if (safeIndex < MAX_ZOOM_INDEX) {
       this.setState({ zoomStepIndex: safeIndex + 1 })
     }
@@ -249,7 +244,6 @@ export default class PDFDriver extends React.Component {
       }
 
       const containerWidth = this.container.offsetWidth
-      const containerHeight = this.container.offsetHeight
       const loadingTask = pdfjs.getDocument(filePath)
 
       loadingTask.onProgress = (progressData) => {
@@ -276,7 +270,6 @@ export default class PDFDriver extends React.Component {
       this.setState({
         pdf,
         containerWidth,
-        containerHeight,
         zoomStepIndex: bestFitZoomIndex,
         autoFitCalculated: true,
       })

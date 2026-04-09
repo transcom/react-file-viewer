@@ -220,7 +220,7 @@ export default class PDFDriver extends React.Component {
       scale: 1.0,
       rotation: this.props.rotationValue || 0,
     })
-    const scaleWidth = (containerWidth / viewport.width) * 0.95
+    const scaleWidth = (containerWidth / viewport.width) * 0.8
     return this.findClosestZoomStep(scaleWidth)
   }
 

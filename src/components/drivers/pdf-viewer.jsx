@@ -2,9 +2,6 @@
 
 import React from 'react'
 
-const INCREASE_PERCENTAGE = 0.2
-const DEFAULT_SCALE = 1.1
-
 export class PDFPage extends React.Component {
   constructor(props) {
     super(props)
@@ -27,13 +24,13 @@ export class PDFPage extends React.Component {
     this.fetchAndRenderPage()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const needsRerender =
       prevProps.zoom !== this.props.zoom ||
       prevProps.rotation !== this.props.rotation ||
       prevProps.index !== this.props.index ||
       (this.props.disableVisibilityCheck !== true &&
-        prevProps.isVisible !== this.state.isVisible)
+        prevState.isVisible !== this.state.isVisible)
 
     if (needsRerender) {
       this.fetchAndRenderPage()
@@ -70,13 +67,8 @@ export class PDFPage extends React.Component {
 
   renderPage(page) {
     try {
-      const { containerWidth, zoom, rotation } = this.props
-      const initialViewport = page.getViewport({ scale: DEFAULT_SCALE })
-      const calculatedScale = containerWidth / initialViewport.width
-      const scale =
-        (calculatedScale > DEFAULT_SCALE ? DEFAULT_SCALE : calculatedScale) +
-        zoom * INCREASE_PERCENTAGE
-      const viewport = page.getViewport({ scale, rotation })
+      const { zoom, rotation } = this.props
+      const viewport = page.getViewport({ scale: zoom, rotation })
       const { width, height } = viewport
 
       const canvas = this.canvas.current
@@ -108,46 +100,54 @@ export class PDFPage extends React.Component {
     const { index } = this.props
     return (
       <div key={`page-${index}`} className="pdf-canvas">
-        <canvas ref={this.canvas} width="670" height="870" aria-hidden="true" />
+        <canvas ref={this.canvas} aria-hidden="true" />
       </div>
     )
   }
 }
 
+// Zoom values array for iteration
+const ZOOM_VALUES = [
+  0.1,
+  0.25,
+  0.5,
+  0.75,
+  1.0,
+  1.1,
+  1.25,
+  1.5,
+  1.75,
+  2.0,
+  2.25,
+  2.5,
+  2.75,
+  3.0,
+  3.25,
+  3.5,
+  3.75,
+  4.0,
+  4.25,
+  4.5,
+  4.75,
+  5.0,
+]
+
+// Create immutable Map for zoom steps
+const ZOOM_STEPS = new Map(ZOOM_VALUES.map((value, index) => [index, value]))
+Object.freeze(ZOOM_STEPS)
+
+const MAX_ZOOM_INDEX = ZOOM_VALUES.length - 1
+const DEFAULT_ZOOM_INDEX = 8 // 1.0 (100%)
+
 export default class PDFDriver extends React.Component {
   constructor(props) {
     super(props)
 
-    // zoom steps: 10% through 500%
-    this.zoomSteps = [
-      0.1,
-      0.25,
-      0.5,
-      0.75,
-      1.0,
-      1.1,
-      1.25,
-      1.5,
-      1.75,
-      2.0,
-      2.25,
-      2.5,
-      2.75,
-      3.0,
-      3.25,
-      3.5,
-      3.75,
-      4.0,
-      4.25,
-      4.5,
-      4.75,
-      5.0,
-    ]
-
     this.state = {
       pdf: null,
-      zoomStepIndex: 4, // default to 1.0 (100%)
+      zoomStepIndex: DEFAULT_ZOOM_INDEX,
       percent: 0,
+      autoFitCalculated: false,
     }
 
     this.increaseZoom = this.increaseZoom.bind(this)
@@ -155,6 +155,15 @@ export default class PDFDriver extends React.Component {
     this.resetZoom = this.resetZoom.bind(this)
     this.rotateLeft = this.rotateLeft.bind(this)
     this.rotateRight = this.rotateRight.bind(this)
+    this.loadPDF = this.loadPDF.bind(this)
+  }
+
+  getSafeIndex(index) {
+    return Math.max(0, Math.min(Math.floor(Number(index) || 0), MAX_ZOOM_INDEX))
+  }
+
+  getZoomValue(index) {
+    return ZOOM_STEPS.get(this.getSafeIndex(index)) || 1.0
   }
 
   rotateLeft() {
@@ -170,61 +179,118 @@ export default class PDFDriver extends React.Component {
   }
 
   increaseZoom() {
-    const { zoomStepIndex } = this.state
-    if (zoomStepIndex < this.zoomSteps.length - 1) {
-      this.setState({ zoomStepIndex: zoomStepIndex + 1 })
+    const safeIndex = this.getSafeIndex(this.state.zoomStepIndex)
+    if (safeIndex < MAX_ZOOM_INDEX) {
+      this.setState({ zoomStepIndex: safeIndex + 1 })
     }
   }
 
   reduceZoom() {
     const { zoomStepIndex } = this.state
-    if (zoomStepIndex > 0) {
-      this.setState({ zoomStepIndex: zoomStepIndex - 1 })
+    const safeIndex = Math.max(
+      0,
+      Math.min(Math.floor(Number(zoomStepIndex) || 0), MAX_ZOOM_INDEX)
+    )
+    if (safeIndex > 0) {
+      this.setState({ zoomStepIndex: safeIndex - 1 })
     }
   }
 
   resetZoom() {
-    this.setState({ zoomStepIndex: 4 })
+    this.setState({ zoomStepIndex: DEFAULT_ZOOM_INDEX })
   }
 
-  componentDidMount() {
-    // Dynamic import of ESM into CJS
-    ;(async () => {
-      // sidestep that pdfjs is bundled as esm
+  findClosestZoomStep(targetScale) {
+    let closestIndex = 0
+    let smallestDiff = Math.abs(ZOOM_VALUES[0] - targetScale)
+
+    ZOOM_VALUES.forEach((step, index) => {
+      const diff = Math.abs(step - targetScale)
+      if (diff < smallestDiff) {
+        smallestDiff = diff
+        closestIndex = index
+      }
+    })
+
+    return closestIndex
+  }
+
+  calculateBestFitZoom(page, containerWidth) {
+    const viewport = page.getViewport({
+      scale: 1.0,
+      rotation: this.props.rotationValue || 0,
+    })
+    const scaleWidth = (containerWidth / viewport.width) * 0.8
+    return this.findClosestZoomStep(scaleWidth)
+  }
+
+  progressCallback(progress) {
+    const percent = ((progress.loaded / progress.total) * 100).toFixed()
+    this.setState({ percent })
+  }
+
+  async loadPDF() {
+    try {
       const pdfjs = await import(
         // Make sure we add comments to this import so the webpack can chunk it properly
         /* webpackPrefetch: 0, webpackChunkName: "pdfjs-dist-webpack" */ 'pdfjs-dist/webpack'
       )
+
       const { filePath } = this.props
+
+      if (!this.container) {
+        console.warn('PDF container not yet mounted')
+        return
+      }
+
       const containerWidth = this.container.offsetWidth
       const loadingTask = pdfjs.getDocument(filePath)
+
       loadingTask.onProgress = (progressData) => {
         this.progressCallback(progressData)
       }
 
-      loadingTask.promise
-        .then((pdf) => {
-          if (this.pdf) {
-            // Attempting to mount a new PDF when one already exists
-            // Destroy the current PDF and reload the new one
-            this.pdf.destroy()
-          }
-          this.setState({ pdf, containerWidth })
-        })
-        .catch((error) => {
-          if (
-            typeof this.props.onError != undefined &&
-            this.props.onError != null
-          ) {
-            this.props.onError(error)
-          } else {
-            console.error('Error loading PDF:', error)
-          }
-        })
-    })()
+      const pdf = await loadingTask.promise
+
+      if (!this._isMounted) return
+
+      if (this.pdf) {
+        // Attempting to mount a new PDF when one already exists
+        // Destroy the current PDF and reload the new one
+        this.pdf.destroy()
+      }
+
+      this.pdf = pdf
+      const page = await pdf.getPage(1)
+
+      if (!this._isMounted) return
+
+      const bestFitZoomIndex = this.calculateBestFitZoom(page, containerWidth)
+
+      this.setState({
+        pdf,
+        containerWidth,
+        zoomStepIndex: bestFitZoomIndex,
+        autoFitCalculated: true,
+      })
+    } catch (error) {
+      if (!this._isMounted) return
+
+      if (this.props.onError) {
+        this.props.onError(error)
+      } else {
+        console.error('Error loading PDF:', error)
+      }
+    }
+  }
+
+  componentDidMount() {
+    this._isMounted = true
+    this.loadPDF()
   }
 
   componentWillUnmount() {
+    this._isMounted = false
     if (this.pdf) {
       this.pdf.destroy()
       this.pdf = null
@@ -237,31 +303,22 @@ export default class PDFDriver extends React.Component {
         this.pdf.destroy()
         this.pdf = null
       }
-      this.loadPdf()
+      this.loadPDF()
     }
   }
 
-  setZoom(index) {
-    this.setState({ zoomStepIndex: index })
-  }
-
-  progressCallback(progress) {
-    const percent = ((progress.loaded / progress.total) * 100).toFixed()
-    this.setState({ percent })
-  }
-
   renderPages() {
-    const { pdf, containerWidth, zoomStepIndex } = this.state
+    const { pdf, zoomStepIndex } = this.state
     const { rotationValue } = this.props
     if (!pdf) return null
-    const zoom = this.zoomSteps[zoomStepIndex]
-    const pages = [...Array(pdf.numPages).keys()].map((i) => i + 1)
-    return pages.map((_, i) => (
+
+    const zoom = this.getZoomValue(zoomStepIndex)
+
+    return Array.from({ length: pdf.numPages }, (_, i) => (
       <PDFPage
         key={`pdfPage_${i}_${rotationValue}`}
         index={i + 1}
         pdf={pdf}
-        containerWidth={containerWidth}
         zoom={zoom}
         rotation={rotationValue}
         disableVisibilityCheck={this.props.disableVisibilityCheck}
@@ -276,6 +333,7 @@ export default class PDFDriver extends React.Component {
 
   render() {
     const { renderControls } = this.props
+    const { zoomStepIndex } = this.state
 
     return (
       <div className="pdf-viewer-container">
@@ -285,9 +343,7 @@ export default class PDFDriver extends React.Component {
             handleZoomOut: this.reduceZoom,
             handleRotateLeft: this.rotateLeft,
             handleRotateRight: this.rotateRight,
-            zoomPercentage: Math.round(
-              this.zoomSteps[this.state.zoomStepIndex] * 100
-            ),
+            zoomPercentage: Math.round(this.getZoomValue(zoomStepIndex) * 100),
           })
         ) : (
           <div className="pdf-controls-container">

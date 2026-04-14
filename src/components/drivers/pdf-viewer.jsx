@@ -138,6 +138,7 @@ Object.freeze(ZOOM_STEPS)
 
 const MAX_ZOOM_INDEX = ZOOM_VALUES.length - 1
 const DEFAULT_ZOOM_INDEX = 8 // 1.0 (100%)
+const WIDTH_FIT_SCALE = 0.8 // 80% screen width
 
 export default class PDFDriver extends React.Component {
   constructor(props) {
@@ -220,7 +221,7 @@ export default class PDFDriver extends React.Component {
       scale: 1.0,
       rotation: this.props.rotationValue || 0,
     })
-    const scaleWidth = (containerWidth / viewport.width) * 0.8
+    const scaleWidth = (containerWidth / viewport.width) * WIDTH_FIT_SCALE
     return this.findClosestZoomStep(scaleWidth)
   }
 

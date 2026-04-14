@@ -38,11 +38,10 @@ export default class PhotoViewer extends Component {
   constructor(props) {
     super(props)
 
-    const { originalHeight, originalWidth, width: viewerWidth } = props
+    const { originalWidth, width: viewerWidth } = props
 
     const bestFitZoomIndex = this.calculateBestFitZoom(
       originalWidth,
-      originalHeight,
       viewerWidth
     )
 
@@ -82,13 +81,9 @@ export default class PhotoViewer extends Component {
     return closestIndex
   }
 
-  calculateBestFitZoom(imageWidth, imageHeight, containerWidth) {
-    if (imageWidth > imageHeight) {
-      const scaleWidth = (containerWidth / imageWidth) * WIDTH_FIT_SCALE
-      return this.findClosestZoomStep(scaleWidth)
-    }
-
-    return this.findClosestZoomStep(1.0)
+  calculateBestFitZoom(imageWidth, containerWidth) {
+    const scaleWidth = (containerWidth / imageWidth) * WIDTH_FIT_SCALE
+    return this.findClosestZoomStep(scaleWidth)
   }
 
   setZoom(index) {
